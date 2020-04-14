@@ -204,6 +204,8 @@ $$
 
 \subsubsection{(ii)}
 
+Assuming our dialect of the relational calculus has a definition for NULL,
+
 $$
 \left\{
 \texttt{m.LastName, m.FirstName | Member(m) and m.Coach = NULL}
@@ -212,6 +214,63 @@ $$
 
 \subsubsection{(iii)}
 
+Our query is
+
 \sqlfile{q2a.sql}
+
+which returns
+
+\begin{bashinline}
++----------+-----------+
+| LastName | FirstName |
++----------+-----------+
+| Stone    | Michael   |
+| Nolan    | Brenda    |
+| Branch   | Helen     |
+| Beck     | Sarah     |
+| Spence   | Thomas    |
+| Olson    | Barbara   |
+| Wilcox   | Daniel    |
+| Young    | Betty     |
+| Willis   | Carolyn   |
+| Kent     | Susan     |
++----------+-----------+
+\end{bashinline}
+
+
+\begin{itemize}
+    \item The SQL query for marking is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q2a.sql}
+    \item An executable \texttt{bash} script that will run the query against the \texttt{compbiol} database is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q2a.sh}
+\end{itemize}
+
+\subsection{b.}
+
+\subsubsection{(i)}
+
+$$
+\project{\mathbf{LastName, FirstName}}
+\left(
+\select{\mathbf{JoinDate} \geq \text{`2010-01-01' AND } \mathbf{JoinDate \leq \text{`2010-12-31'}}}
+\left(\mathbf{Member}\right)
+\right)
+$$
+
+\subsubsection{(ii)}
+
+$$
+\begin{aligned}
+\{
+\texttt{ m.LastName, m.FirstName } | &\texttt{ Member(m)} \\
+    &\texttt{ and m.JoinDate} \geq \texttt{`2010-01-01'} \\
+    &\texttt{ and m.JoinDate} \leq \texttt{`2010-12-31 '}
+\}
+\end{aligned}
+$$
+
+\subsubsection{(iii)}
+
+A query that implements the above expressions is 
+
+
 
 \end{document}
