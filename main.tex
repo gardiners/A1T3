@@ -4,6 +4,7 @@
 \usepackage{minted}
 \usepackage{xcolor}
 \usepackage[a4paper]{geometry}
+\usepackage{amsmath}
 
 \title{BUSA8090 - Assignment 1, Task 3}
 \author{Samuel Gardiner (44952619)}
@@ -37,6 +38,16 @@
     bgcolor = mannibg
 }
 
+\newmintinline[tttsnippet]{text}{
+    bgcolor = mannibg
+}
+
+\newmintinline[sqlfile]{sql}{
+    style = manni,
+    bgcolor = mannibg,
+    linenos
+}
+
 \begin{document}
 
 \maketitle
@@ -44,6 +55,109 @@
 \section{Note to the marker:}
 
 \section{Question 1}
+
+\subsection{a.}
+
+Since we already have the \texttt{expression} table in our MySQL \texttt{compbiol} database, we can export it to a file. From \texttt{man mysql} (at line 60 of the man page):
+
+\begin{bashinline}
+   ·   --batch, -B
+
+           Print results using tab as the column separator, with each row on a new line. With this option, mysql does not use the history file.
+\end{bashinline}
+
+So, with the \texttt{--batch} argument and the file redirect operator \texttt{>}, we can write a tab-separated file from the command-line:
+
+\begin{bashcode}
+# Create a directory to store the TSV file:
+mkdir -p ~/busa/A1T3
+# Write the TSV file:
+mysql --batch -u awkologist -p compbiol -e \
+"SELECT * FROM expression \
+ORDER BY gene" > ~/busa/A1T3/expression.tsv
+\end{bashcode}
+
+We have ordered the output by \texttt{gene} to make life easier when using the \texttt{join} command from \texttt{bash} in part \textbf{c.}, below.
+
+The tab-separated file is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/expression.tsv} for marking.
+
+\subsection{b.}
+
+Using the same logic as in \textbf{a.}, above, we query for every row in the \texttt{annotation} table and then save it to a file \texttt{annotation.tsv} using the \texttt{--batch} argument to \texttt{mysql}.
+
+\begin{bashcode}
+mysql --batch -u awkologist -p compbiol -e \
+"SELECT * FROM annotation \
+ORDER BY gene" > ~/busa/A1T3/annotation.tsv
+\end{bashcode}
+
+Again, we have ordered by \texttt{gene} to make part \textbf{c.}, below, easier. The tab-separated file is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/annotation.tsv} for marking.
+
+\subsection{c.}
+
+Since \texttt{join} requires its input files to be sorted on the key field, both TSV files exported above were sorted on \texttt{gene} at the time of export, ensuring that the list of genes is in the same order in both files. We could also use \texttt{sort} inside a subshell for each file when calling \texttt{join}, but that would make the \texttt{join} call harder to interpret (and harder to mark).
+
+So, assuming we are in a directory with our files named \texttt{annotation.tsv} and \texttt{expression.tsv}, we can implement the given relational algebra statement with the following \texttt{bash} command:
+
+\begin{bashinline}
+join -t $'\t' --header annotation.tsv expression.tsv | cut -f 1,2,4 > join.tsv  
+\end{bashinline}
+
+Examining each element of the line, we have:
+
+\begin{itemize}
+    \item the \bashsnippet{join} command. Since the default is to join on the first field in each input, and our files already have the key field \texttt{gene} as the first field, we do not need to explicity specify the key.
+    \begin{itemize}
+        \item the \bashsnippet{-t $'\t'} argument, which specifies which character should be used to separate values in the input files. \bashsnippet{$'\t'} indicates that a literal tab character should be used as the separator (the \bashsnippet{$'...'} construct is ANSI C quoting of literals). By default \bashsnippet{join} uses a space \textit{or} tab character as its delimiter, but returns space-delimited output. Since we want to pass the output to \bashsnippet{cut}, we force \bashsnippet{join} to use tab as its input and output delimiter.
+        \item \bashsnippet{--header} indicates that the first line of the input files should not be matched upon, and should simply be combined and returned as the first line of the output.
+        \item \bashsnippet{annotation.tsv expression.tsv} specifies the input files.
+    \end{itemize}
+    \item the pipe \bashsnippet{|} to send the output of \bashsnippet{join} to the input of \bashsnippet{cut}
+    \item the \bashsnippet{cut} command, to select the fields that we wish to return. By default, \bashsnippet{cut} uses the tab character as its field delimeter.
+    \begin{itemize}
+        \item the \tttsnippet{ -f 1,2,4} argument to return the fields \texttt{gene}, \texttt{function} and \texttt{expr\_value} (the first, second and fourth fields in the joined dataset).
+    \end{itemize}
+    \item the file redirect operator \bashsnippet{>} to save the output to the file \texttt{join.tsv}
+\end{itemize}
+
+The answer command has been saved with the filename \texttt{join.sh} in the GitHub repository for A1T3.
+\begin{itemize}
+    \item The command for marking is at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/join.sh}
+    \item Example output is at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/join.tsv}
+\end{itemize}
+
+\subsection{d.}
+
+\subsubsection{(i)}
+
+To find the duplicated metabolisms in the \texttt{annotation} table, our algebraic operations are
+\begin{itemize}
+    \item find the inner join of \texttt{annotation} with itself, with the joining conditions
+    \begin{itemize}
+        \item both `copies' of \texttt{metabolism} in the joint tuple are the same, AND
+        \item each `copy' of \texttt{gene} in in the joint tuple are different
+    \end{itemize}
+    \item project the resulting list of metabolisms.
+\end{itemize}
+
+In relational algebra, our statement is therefore:
+
+$$
+\begin{aligned}
+\boldsymbol{\pi}_\mathbf{metabolism}
+\left(
+    \mathbf{annotation} \bowtie_{\mathbf{metabolism} = \mathbf{metabolism} \text{ AND }
+        \mathbf{gene} \ne \mathbf{gene}} \mathbf{annotation}
+\right)
+\end{aligned}
+$$
+
+\subsubsection{(ii)}
+
+Since the relational algebra statement above is guaranteed to return distinct tuples (by its axioms), we use \texttt{SELECT DISTINCT} in our SQL query to ensure that we obtain only distinct relations as the result. That is, we wish to know only the names of the duplicated metabolisms; we don't want a repeated row for each time a metabolism is duplicated.
+
+Therefore, our SQL query is:
+
 
 
 \end{document}
