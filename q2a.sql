@@ -1,3 +1,3 @@
-SELECT 	LastName, Firstname
-  FROM	Member
- WHERE 	Coach IS NULL;
+SELECT LastName, Firstname
+  FROM Member
+ WHERE Coach IS NULL;
