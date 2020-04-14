@@ -51,6 +51,7 @@
 }
 
 % Relational algebra macros:
+% --------------------------
 
 \newcommand{\select}[1]{
 \boldsymbol{\sigma}_{#1}
@@ -59,6 +60,13 @@
 \newcommand{\project}[1]{
 \boldsymbol{\pi}_{#1}
 }
+
+\newcommand{\join}[1]{
+\boldsymbol{\bowtie}_{#1}
+}
+
+% Content
+% -------
 
 \begin{document}
 
@@ -86,7 +94,7 @@ mkdir -p ~/busa/A1T3
 # Write the TSV file:
 mysql --batch -u awkologist -p compbiol -e \
 "SELECT * FROM expression \
-ORDER BY gene" > ~/busa/A1T3/expression.tsv
+ORDER BY gene;" > ~/busa/A1T3/expression.tsv
 \end{bashcode}
 
 We have ordered the output by \texttt{gene} to make life easier when using the \texttt{join} command from \texttt{bash} in part \textbf{c.}, below.
@@ -100,7 +108,7 @@ Using the same logic as in \textbf{a.}, above, we query for every row in the \te
 \begin{bashcode}
 mysql --batch -u awkologist -p compbiol -e \
 "SELECT * FROM annotation \
-ORDER BY gene" > ~/busa/A1T3/annotation.tsv
+ORDER BY gene;" > ~/busa/A1T3/annotation.tsv
 \end{bashcode}
 
 Again, we have ordered by \texttt{gene} to make part \textbf{c.}, below, easier. The tab-separated file is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/annotation.tsv} for marking.
@@ -208,7 +216,7 @@ Assuming our dialect of the relational calculus has a definition for NULL,
 
 $$
 \left\{
-\texttt{m.LastName, m.FirstName | Member(m) and m.Coach = NULL}
+\texttt{ m.LastName, m.FirstName | Member(m) and m.Coach = NULL }
 \right\}
 $$
 
@@ -262,14 +270,62 @@ $$
 \{
 \texttt{ m.LastName, m.FirstName } | &\texttt{ Member(m)} \\
     &\texttt{ and m.JoinDate} \geq \texttt{`2010-01-01'} \\
-    &\texttt{ and m.JoinDate} \leq \texttt{`2010-12-31 '}
+    &\texttt{ and m.JoinDate} \leq \texttt{`2010-12-31' }
 \}
 \end{aligned}
 $$
 
 \subsubsection{(iii)}
 
-A query that implements the above expressions is 
+A query that implements the above expressions (when executed against \texttt{compbiol}) is 
+
+\sqlfile{q2b.sql}
+
+which returns
+
+\begin{bashinline}
++----------+-----------+
+| LastName | Firstname |
++----------+-----------+
+| Beck     | Sarah     |
+| Kent     | Susan     |
++----------+-----------+
+\end{bashinline}
+
+\begin{itemize}
+    \item The SQL for marking is at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q2b.sql}
+    \item An executable \texttt{bash} script that runs the SQL against \texttt{compbiol} is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q2b.sh}
+\end{itemize}
+
+\subsection{c.}
+
+\subsubsection{(i)}
+
+$$
+\project{\mathbf{MemberID, LastName, FirstName}}
+\left(
+    \select{\mathbf{Year} \ne 2014}
+        \left(\mathbf{Member} \join{\mathbf{MemberID} = \mathbf{MemberID}} \mathbf{Entry} \right)
+\right)
+$$
+
+\subsubsection{(ii)}
+
+$$
+\begin{aligned}
+\{
+\texttt{ m.MemberID, m.LastName, m.FirstName } | &\texttt{ Member(m), Entry(e)} \\
+    &\texttt{ and m.MemberID} = \texttt{e.MemberID} \\
+    &\texttt{ and e.Year} \ne 2014
+\texttt{ } \}
+\end{aligned}
+$$
+
+\subsubsection{(iii)}
+
+A query which implements the expressions above is
+
+
 
 
 
