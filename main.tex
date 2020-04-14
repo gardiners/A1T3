@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage[a4paper]{geometry}
+
+\title{BUSA8090 - Assignment 1, Task 3}
+\author{Samuel Gardiner (44952619)}
+\date{16 April 2020}
+
+% Setup:
+\setcounter{secnumdepth}{0}
+
+\definecolor{mannibg}{HTML}{f0f3f3}
+
+\newminted[bashcode]{bash}{
+    style = manni,
+    bgcolor = mannibg
+}
+
+\newminted[bashinline]{text}{
+    style = manni,
+    bgcolor = mannibg,
+    breaklines,
+    mathescape
+}
+
+\newmintedfile[bashfile]{bash}{
+    style = manni,
+    bgcolor = mannibg,
+    linenos
+}
+
+\newmintinline[bashsnippet]{bash}{
+    style = manni,
+    bgcolor = mannibg
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Note to the marker:}
+
+\section{Question 1}
+
+
+\end{document}
