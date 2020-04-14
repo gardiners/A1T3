@@ -13,6 +13,8 @@
 % Setup:
 \setcounter{secnumdepth}{0}
 
+% Code highlighting:
+
 \definecolor{mannibg}{HTML}{f0f3f3}
 
 \newminted[bashcode]{bash}{
@@ -33,6 +35,12 @@
     linenos
 }
 
+\newmintedfile[sqlfile]{sql}{
+    style = manni,
+    bgcolor = mannibg,
+    linenos
+}
+
 \newmintinline[bashsnippet]{bash}{
     style = manni,
     bgcolor = mannibg
@@ -42,10 +50,14 @@
     bgcolor = mannibg
 }
 
-\newmintinline[sqlfile]{sql}{
-    style = manni,
-    bgcolor = mannibg,
-    linenos
+% Relational algebra macros:
+
+\newcommand{\select}[1]{
+\boldsymbol{\sigma}_{#1}
+}
+
+\newcommand{\project}[1]{
+\boldsymbol{\pi}_{#1}
 }
 
 \begin{document}
@@ -154,9 +166,51 @@ $$
 
 \subsubsection{(ii)}
 
-Since the relational algebra statement above is guaranteed to return distinct tuples (by its axioms), we use \texttt{SELECT DISTINCT} in our SQL query to ensure that we obtain only distinct relations as the result. That is, we wish to know only the names of the duplicated metabolisms; we don't want a repeated row for each time a metabolism is duplicated.
+Since the relational algebra statement above is guaranteed to return distinct tuples (by its axioms), we use \texttt{SELECT DISTINCT} in our SQL query to ensure that we obtain only distinct relations as its result. That is, we wish to know only the names of the duplicated metabolisms; we don't want a repeated row for each time a metabolism is duplicated.
 
 Therefore, our SQL query is:
+
+\sqlfile{q1dii.sql}
+
+which returns the result
+
+\begin{bashinline}
++-------------------------+
+| metabolism              |
++-------------------------+
+| Pyrimidine biosynthesis |
++-------------------------+ 
+\end{bashinline}
+
+\begin{itemize}
+    \item an SQL command for marking is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q1dii.sql}
+    \item an executable \texttt{bash} script that runs the SQL command at the terminal is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q1dii.sh}
+\end{itemize}
+
+\section{Question 2}
+
+\subsection{a.}
+
+\subsubsection{(i)}
+
+Assuming our dialect of relational algebra has a definition for NULL,
+
+$$
+\project{\mathbf{LastName, FirstName}}
+\left(
+\select{\mathbf{Coach} = \text{NULL}}\left(\mathbf{Member}\right)
+\right)
+$$
+
+\subsubsection{(ii)}
+
+$$
+\left\{
+\texttt{m.LastName, m.FirstName | Member(m) and m.Coach = NULL}
+\right\}
+$$
+
+\subsubsection{(iii)}
 
 
 
