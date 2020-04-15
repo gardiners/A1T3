@@ -1,6 +1,9 @@
 #!/bin/bash
-mysql -p -u awkologist compbiol <<%%
-SELECT  LastName, Firstname
+echo "SELECT  LastName, FirstName
   FROM  Member
- WHERE  JoinDate BETWEEN '2010-01-01' AND '2010-12-31';
-%%
+ WHERE  JoinDate BETWEEN '2010-01-01' AND '2010-12-31';"
+
+mysql -p -u awkologist compbiol -e "
+SELECT  LastName, FirstName
+  FROM  Member
+ WHERE  JoinDate BETWEEN '2010-01-01' AND '2010-12-31';"
