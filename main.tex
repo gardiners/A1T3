@@ -205,7 +205,7 @@ Assuming our dialect of relational algebra has a definition for NULL,
 $$
 \project{\mathbf{LastName, FirstName}}
 \left(
-\select{\mathbf{Coach} = \text{NULL}}\left(\mathbf{Member}\right)
+\select{\mathbf{Coach} \text{ IS NULL}}\left(\mathbf{Member}\right)
 \right)
 $$
 
@@ -215,7 +215,7 @@ Assuming our dialect of the relational calculus has a definition for NULL,
 
 $$
 \left\{
-\texttt{ m.LastName, m.FirstName | Member(m) and m.Coach = NULL }
+\texttt{ m.LastName, m.FirstName | Member(m) and m.Coach IS NULL }
 \right\}
 $$
 
@@ -346,10 +346,35 @@ which yields the result:
 
 \subsubsection{(i)}
 
-every member who does not have an entry in a  year which does not have them playing
+$$
+\begin{aligned}
+\{
+\texttt{ m.MemberID, m.LastName, m.FirstName |} &\texttt{ Member(m) AND }\\
+&\forall \texttt{(y) Entry (y)}\\
+&(\exists \texttt{(e) Entry(e) AND y.Year = e.Year AND}\\
+&\texttt{m.MemberID = e.MemberID})
+\}
+\end{aligned}
+$$
 
-where there does not exist a year in which there does not exist an entry for that player
+We can also express this as a double-negative to aid translation to SQL: we want every member where there does not exist a year in which there does not exist an entry for that player.
 
-There is no entry with a year in which the player did not enter
+\subsubsection{(ii)}
+
+We can express this without the double-negative in SQL, using \texttt{COUNT(DISTINCT Years)} for our member-entries and comparing this to the total number of distinct years in which members having been playing using the \texttt{HAVING} clause and a subquery:
+
+\sqlfile{q2d.sql}
+
+which returns only the players who played in 2013, 2014 and 2015:
+
+\begin{bashinline}
++----------+----------+-----------+
+| MemberId | LastName | FirstName |
++----------+----------+-----------+
+|      235 | Cooper   | William   |
+|      286 | Pollard  | Robert    |
+|      415 | Taylor   | William   |
++----------+----------+-----------+
+\end{bashinline}
 
 \end{document}
