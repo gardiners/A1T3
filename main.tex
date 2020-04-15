@@ -29,6 +29,13 @@
     mathescape
 }
 
+\newminted[longinline]{text}{
+    style = manni,
+    bgcolor = mannibg,
+    mathescape
+}
+
+
 \newmintedfile[bashfile]{bash}{
     style = manni,
     bgcolor = mannibg,
@@ -72,6 +79,20 @@
 \maketitle
 
 \section{Note to the marker:}
+
+Each SQL answer is available as a \texttt{.sql} file which contains only the SQL query, and as a \texttt{.sh} file which (when executed) will print the query to the terminal, connect to the \texttt{compbiol} database on your AWS instance, and then execute the query.
+
+All of the answer SQL queries and \texttt{bash} scripts are contained within a GitHub repository at \url{https://github.com/gardiners/A1T3}
+
+To download all of the files and get them ready to mark, run the following on your Ubuntu AWS instance: 
+
+\begin{longinline}
+source <(curl -s https://raw.githubusercontent.com/gardiners/A1T3/master/install.sh)
+\end{longinline}
+
+Which will clone the GitHub repository into a new directory called \texttt{gardiners-A1T3}, make all of the scripts executable, and then put you into that directory ready to mark.
+
+
 
 \section{Question 1}
 
@@ -254,6 +275,8 @@ which returns
 
 \subsubsection{(i)}
 
+We select from Member all of the players who meet the condition that their join date is between the two dates specified, and then project the atributes LastName and FirstName:
+
 $$
 \project{\mathbf{LastName, FirstName}}
 \left(
@@ -276,7 +299,7 @@ $$
 
 \subsubsection{(iii)}
 
-A query that implements the above expressions (when executed against \texttt{compbiol}) is 
+We can use \texttt{BETWEEN} as a syntactic sweetener instead of a pair of comparisons. A query that implements the above expressions (when executed against \texttt{compbiol}) is 
 
 \sqlfile{q2b.sql}
 
@@ -300,12 +323,21 @@ which returns:
 
 \subsubsection{(i)}
 
+In the algebraic paradigm, we perform two subequeries to assumble the filter for the select operator:
+$$
+\begin{aligned}
+\mathbf{m1} &\leftarrow \project{\mathbf{MemberID}}(\mathbf{Entry})\\
+\mathbf{m2} &\leftarrow \project{\mathbf{MemberID}}\left(\select{\mathbf{Year} = 2014} \left(\mathbf{Entry}\right) \right)\\
+\end{aligned}
+$$
+
+The first of the subqueries (here \textbf{m1}) simply lists all of the MemberIDs that have competed in tournaments. The second subquery (\textbf{m2}) lists all of the MemberIDs who competed in 2014. We can use these subqueries together in our main algebraic statement to perform a set difference:
+
 $$
 \project{\mathbf{MemberID, LastName, FirstName}}
 \left(
-    \select{\mathbf{Year} \ne 2014}
-        \left(\mathbf{Member} \join{\mathbf{MemberID} = \mathbf{MemberID}} \mathbf{Entry} \right)
-\right)
+    \select{\mathbf{MemberID} \texttt{ IN } \mathbf{a1} \texttt{ AND } \mathbf{MemberID} \texttt{ NOT IN } \mathbf{a2}}
+    \left(\mathbf{Member}\right)\right)
 $$
 
 \subsubsection{(ii)}
@@ -322,7 +354,7 @@ $$
 
 \subsubsection{(iii)}
 
-A query which implements the expressions above is
+A query which implements the expressions above (in the relational calculus style) is
 
 \sqlfile{q2c.sql}
 
@@ -361,7 +393,7 @@ We can also express this as a double-negative to aid translation to SQL: we want
 
 \subsubsection{(ii)}
 
-We can express this without the double-negative in SQL, using \texttt{COUNT(DISTINCT Years)} for our member-entries and comparing this to the total number of distinct years in which members having been playing using the \texttt{HAVING} clause and a subquery:
+We can express this without the double-negative in SQL if we take the algebraic approach. We use \texttt{COUNT(DISTINCT Years)} for our member-entries and compare this to the total number of distinct years in which members having been playing using the \texttt{HAVING} clause and a subquery:
 
 \sqlfile{q2d.sql}
 
@@ -376,5 +408,10 @@ which returns only the players who played in 2013, 2014 and 2015:
 |      415 | Taylor   | William   |
 +----------+----------+-----------+
 \end{bashinline}
+
+\begin{itemize}
+    \item The SQL for marking is at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q2d.sql}
+    \item An executable \texttt{bash} script which prints the query text, runs the query against the \texttt{compbiol} database and then returns the results is available at \url{https://raw.githubusercontent.com/gardiners/A1T3/master/q2d.sh}
+\end{itemize}
 
 \end{document}
