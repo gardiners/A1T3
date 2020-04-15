@@ -37,8 +37,7 @@
 
 \newmintedfile[sqlfile]{sql}{
     style = manni,
-    bgcolor = mannibg,
-    linenos
+    bgcolor = mannibg
 }
 
 \newmintinline[bashsnippet]{bash}{
@@ -316,7 +315,7 @@ $$
 \{
 \texttt{ m.MemberID, m.LastName, m.FirstName } | &\texttt{ Member(m), Entry(e)} \\
     &\texttt{ and m.MemberID} = \texttt{e.MemberID} \\
-    &\texttt{ and e.Year} \ne 2014
+    &\texttt{ and NOT } \exists \texttt{(n) Entry(n) and n.Year} = 2014
 \texttt{ } \}
 \end{aligned}
 $$
@@ -334,10 +333,7 @@ which yields the result:
 | MemberID | LastName | FirstName |
 +----------+----------+-----------+
 |      228 | Burton   | Sandra    |
-|      235 | Cooper   | William   |
 |      239 | Spence   | Thomas    |
-|      286 | Pollard  | Robert    |
-|      415 | Taylor   | William   |
 +----------+----------+-----------+
 \end{bashinline}
 
@@ -350,6 +346,10 @@ which yields the result:
 
 \subsubsection{(i)}
 
+every member who does not have an entry in a  year which does not have them playing
 
+where there does not exist a year in which there does not exist an entry for that player
+
+There is no entry with a year in which the player did not enter
 
 \end{document}
